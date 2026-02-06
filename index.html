@@ -15,8 +15,9 @@
       --line:#000000;     /* la línea negra central */
       --muted:#666666;
       --accent:#000000;
-      --story-bg:#0b0b0b; /* fondo stories: oscuro */
-      --story-fg:#ffffff;
+      --story-bg:#000000; /* fondo stories: oscuro (negro) */
+      --story-fg:#ffffff; /* texto stories: blanco */
+      --dot-active:#e6c07a;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0}
@@ -45,7 +46,7 @@
       position:relative;
     }
 
-    /* Title "Sé honesto" with rounded top edges only (as requested: bordes redondeados solo arriba) */
+    /* Title "Sé honesto" with rounded top edges only */
     .title-pill{
       display:inline-block;
       padding:10px 18px;
@@ -70,25 +71,26 @@
       height:160px;
     }
 
-    /* black line visual */
+    /* thin black line visual (tap target) */
     .line-tap {
       width:70%;
       max-width:420px;
-      height:14px;               /* visible black bar */
+      height:6px;               /* línea más finita */
       background:var(--line);
-      border-radius:10px;
+      border-radius:12px;
       transition: all 260ms ease;
       display:block;
       cursor:pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      -webkit-tap-highlight-color: transparent;
     }
 
     /* When editing: shrink line to left and show input */
     .editing .line-tap {
-      width:60px;
-      height:12px;
+      width:56px;
+      height:6px;
       margin-right:12px;
-      transform: translateX(-20px);
+      transform: translateX(-12px);
     }
 
     /* input area that appears when editing */
@@ -104,6 +106,7 @@
       pointer-events:none;
       transition: all 240ms ease;
       left:7%;
+      padding:6px 8px;
     }
     .editing .input-row{
       opacity:1;
@@ -113,7 +116,7 @@
     textarea#prompt{
       flex:1;
       min-height:56px;
-      max-height:220px;
+      max-height:50vh;
       resize:none;
       border:none;
       outline:none;
@@ -122,19 +125,21 @@
       color:var(--fg);
       font-family:inherit;
       background:transparent;
+      padding:8px;
     }
 
-    /* send button minimal arrow */
+    /* send button minimal arrow (points right) */
     .send-btn{
       width:44px;height:44px;border-radius:10px;border:none;
       display:flex;align-items:center;justify-content:center;
       background:var(--accent); color:#fff; cursor:pointer;
       box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-      transition: transform 140ms ease;
+      transition: transform 140ms ease, opacity 120ms ease;
+      opacity:0.95;
     }
-    .send-btn:active{ transform: translateY(1px) }
+    .send-btn[disabled]{ opacity:0.42; cursor:not-allowed; }
 
-    /* subtle placeholder style when not editing */
+    /* subtle hint when not editing */
     .hint {
       font-size:0.95rem;
       color:var(--muted);
@@ -143,67 +148,104 @@
       max-width:560px;
     }
 
-    /* Stories overlay (Instagram-like) */
+    /* STORIES - full screen */
     .stories-overlay{
-      position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-      background:rgba(0,0,0,0.75); z-index:9999;
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:var(--story-bg);
+      z-index:9999;
+      -webkit-tap-highlight-color: transparent;
     }
+
     .story-card{
-      width:92%;
-      max-width:560px;
-      min-height:50vh;
-      max-height:80vh;
+      width:100vw;
+      height:100vh;
       background:var(--story-bg);
       color:var(--story-fg);
-      border-radius:18px;
-      padding:28px 22px;
-      box-shadow:0 30px 60px rgba(0,0,0,0.6);
-      display:flex; flex-direction:column; justify-content:center; align-items:center;
-      text-align:center; position:relative;
+      border-radius:0;
+      padding:36px 22px 22px 22px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:center;
+      text-align:center;
+      position:relative;
       font-family:"Playfair Display", serif;
+      box-sizing:border-box;
     }
-    .story-text{
-      font-size:1.35rem;
-      line-height:1.6;
-      white-space:pre-wrap;
-    }
-    .story-dots{ position:absolute; bottom:14px; display:flex; gap:8px; }
-    .dot{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.28); }
-    .dot.active{ background:#e6c07a; width:28px; border-radius:20px; height:8px; }
 
-    .tap-left, .tap-right{ position:absolute; top:0; bottom:0; width:40%; z-index:2; }
-    .tap-left{ left:0 } .tap-right{ right:0 }
+    .story-text{
+      margin-top:18vh; /* center-ish vertically */
+      font-size:1.9rem;
+      line-height:1.5;
+      white-space:pre-wrap;
+      max-width:92%;
+      color:var(--story-fg);
+      font-weight:400;
+    }
+
+    /* top dots area like IG (centered) */
+    .story-top{
+      position:absolute;
+      top:12px;
+      left:50%;
+      transform:translateX(-50%);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      z-index:5;
+    }
+
+    .dot{
+      width:8px; height:8px; border-radius:999px; background:rgba(255,255,255,0.25);
+    }
+    .dot.active{ background:var(--dot-active); width:34px; height:8px; border-radius:20px; }
+
+    /* left/right tap zones full height */
+    .tap-left, .tap-right{
+      position:absolute;
+      top:0;
+      bottom:0;
+      width:40%;
+      z-index:2;
+    }
+    .tap-left{ left:0 }
+    .tap-right{ right:0 }
 
     .close-btn{
       position:absolute; top:12px; right:12px; background:transparent; border:none; color:var(--story-fg);
-      font-weight:600; font-size:1rem; cursor:pointer;
+      font-weight:600; font-size:1rem; cursor:pointer; z-index:6;
     }
 
-    /* small screens */
+    /* smaller screens */
     @media (max-width:480px){
       .title-pill{ font-size:1rem; padding:8px 14px; }
-      .center-area{ height:140px }
-      .story-text{ font-size:1.15rem }
+      .center-area{ height:130px }
+      .story-text{ font-size:1.5rem; margin-top:16vh }
       .input-row{ width:90% }
     }
   </style>
 </head>
 <body>
   <div class="stage" id="stage">
-    <!-- Title pill arriba, con bordes redondeados sólo arriba -->
+    <!-- Title pill arriba -->
     <div class="title-pill" id="titlePill">Sé honesto</div>
 
     <!-- middle area with only a black line initially -->
     <div class="center-area" id="centerArea" role="button" aria-label="Tocar para escribir">
       <div class="line-tap" id="lineTap" tabindex="0" aria-hidden="false"></div>
 
-      <!-- this input row appears when editing; contains textarea and send arrow -->
+      <!-- input row appears when editing; textarea + send -->
       <div class="input-row" id="inputRow" aria-hidden="true">
         <textarea id="prompt" placeholder="Escriba lo que siente..." aria-label="Escriba su mensaje"></textarea>
-        <button id="send" class="send-btn" aria-label="Enviar">
-          <!-- simple arrow icon -->
+        <button id="send" class="send-btn" aria-label="Enviar" disabled>
+          <!-- paper-plane / send icon pointing to the right -->
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M3 12h18M3 12l6-6M3 12l6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 2l-7 20  -4-9-9-4 20-7z" stroke="white" stroke-width="0.5" fill="white" fill-opacity="0.0" />
           </svg>
         </button>
       </div>
@@ -212,21 +254,20 @@
     <div class="hint" id="hintText">Toque la línea para escribir.</div>
   </div>
 
-  <!-- Stories overlay -->
+  <!-- STORIES overlay (full screen) -->
   <div id="stories" class="stories-overlay" aria-hidden="true">
     <div class="story-card" role="dialog" aria-modal="true">
+      <div class="story-top" id="storyTop"></div>
       <button class="close-btn" id="closeStories" aria-label="Cerrar">Cerrar ✕</button>
       <div class="tap-left" id="tapLeft" aria-hidden="true"></div>
       <div class="tap-right" id="tapRight" aria-hidden="true"></div>
 
       <div class="story-text" id="storyText">...</div>
-      <div class="story-dots" id="storyDots" aria-hidden="true"></div>
     </div>
   </div>
 
   <script>
     const stage = document.getElementById('stage');
-    const centerArea = document.getElementById('centerArea');
     const lineTap = document.getElementById('lineTap');
     const inputRow = document.getElementById('inputRow');
     const promptEl = document.getElementById('prompt');
@@ -235,7 +276,7 @@
 
     const storiesOverlay = document.getElementById('stories');
     const storyText = document.getElementById('storyText');
-    const storyDots = document.getElementById('storyDots');
+    const storyTop = document.getElementById('storyTop');
     const closeStories = document.getElementById('closeStories');
     const tapLeft = document.getElementById('tapLeft');
     const tapRight = document.getElementById('tapRight');
@@ -243,53 +284,41 @@
     let storyChunks = [];
     let currentIndex = 0;
 
-    // Start editing when user taps the line or center area
     function enterEditing() {
       stage.classList.add('editing');
-      centerArea.classList.add('editing');
       inputRow.setAttribute('aria-hidden','false');
       hintText.style.opacity = '0';
-      // focus textarea (this will open keyboard on mobile)
-      setTimeout(()=> promptEl.focus(), 100);
+      setTimeout(()=> promptEl.focus(), 120);
     }
 
-    // Leave editing if needed
     function exitEditing() {
       stage.classList.remove('editing');
-      centerArea.classList.remove('editing');
       inputRow.setAttribute('aria-hidden','true');
       hintText.style.opacity = '1';
     }
 
+    // open on line click or press
     lineTap.addEventListener('click', enterEditing);
-    centerArea.addEventListener('click', (e) => {
-      // allow clicking only on the line to open; avoid accidental clicks on inputRow elements
-      if (e.target === centerArea) enterEditing();
-    });
-
-    // allow keyboard enter on the line
     lineTap.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        enterEditing();
-      }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterEditing(); }
     });
 
-    // send handler (calls backend and shows stories)
+    // enable send when text present
+    promptEl.addEventListener('input', () => {
+      const has = promptEl.value.trim().length > 0;
+      sendBtn.disabled = !has;
+    });
+
+    // send handler: calls backend, waits min 5s, shows full-screen stories
     sendBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const prompt = promptEl.value || '';
-      if (!prompt.trim()) {
-        promptEl.focus();
-        return;
-      }
+      if (!prompt.trim()) { promptEl.focus(); return; }
 
-      // show quick feedback: replace hint text while waiting
+      // show a small inline hint message while waiting
       hintText.textContent = 'Todo va a estar bien, espérame que te cuento algo.';
       hintText.style.opacity = '1';
 
-      // perform fetch to your netlify function (assumes /.netlify/functions/groq)
-      // start timer to ensure at least 5s animation as requested
       const start = Date.now();
       let responseData = null;
       try {
@@ -303,39 +332,40 @@
         responseData = { error: err?.message || String(err) };
       }
 
-      // ensure min 5s wait
+      // ensure at least 5 seconds shown (per requisito)
       const waited = Date.now() - start;
       const minWait = 5000;
-      if (waited < minWait) {
-        await new Promise(r => setTimeout(r, minWait - waited));
-      }
+      if (waited < minWait) await new Promise(r => setTimeout(r, minWait - waited));
 
-      hintText.textContent = ''; // hide hint
+      hintText.textContent = '';
 
       if (responseData?.error) {
         showStories(["Hubo un error procesando su solicitud. Intente nuevamente más tarde."]);
+        promptEl.value = '';
+        exitEditing();
         return;
       }
 
-      // extract text from response (tries multiple fields)
+      // extract text from response
       let text = '';
       if (responseData.output) text = (typeof responseData.output === 'string') ? responseData.output : JSON.stringify(responseData.output);
       else if (responseData.output_text) text = responseData.output_text;
       else if (responseData.raw && responseData.raw.output_text) text = responseData.raw.output_text;
       else text = JSON.stringify(responseData.raw || responseData, null, 2);
 
-      // split into story-sized chunks
-      const chunks = splitIntoStories(text, 240);
+      const chunks = splitIntoStories(text, 280); // a bit larger for full-screen
       if (chunks.length === 0) chunks.push('No se recibió texto de la IA.');
+
       showStories(chunks);
 
       // reset input UI
       promptEl.value = '';
+      sendBtn.disabled = true;
       exitEditing();
     });
 
-    // helper: split into chunks by sentences, limit chars
-    function splitIntoStories(text, maxChars = 240){
+    // split text into readable chunks
+    function splitIntoStories(text, maxChars = 280){
       if(!text) return [];
       text = text.replace(/\r\n/g,'\n').replace(/\n+/g,' ').trim();
       const sentences = text.match(/[^.!?]+[.!?]?/g) || [text];
@@ -360,36 +390,42 @@
       return chunks;
     }
 
-    // Stories logic
+    // Stories logic (full screen)
     function showStories(chunks){
       storyChunks = chunks;
       currentIndex = 0;
       renderStory();
       storiesOverlay.style.display = 'flex';
       storiesOverlay.setAttribute('aria-hidden','false');
+      // build top dots
+      storyTop.innerHTML = '';
+      for (let i=0;i<storyChunks.length;i++){
+        const d = document.createElement('div');
+        d.className = 'dot' + (i===currentIndex ? ' active' : '');
+        storyTop.appendChild(d);
+      }
     }
     function hideStories(){
       storiesOverlay.style.display = 'none';
       storiesOverlay.setAttribute('aria-hidden','true');
+      storyTop.innerHTML = '';
     }
     function renderStory(){
       storyText.textContent = storyChunks[currentIndex] || '';
-      // dots
-      storyDots.innerHTML = '';
-      for (let i=0;i<storyChunks.length;i++){
-        const d = document.createElement('div');
-        d.className = 'dot' + (i===currentIndex ? ' active': '');
-        storyDots.appendChild(d);
-      }
+      // update dots
+      const dots = storyTop.querySelectorAll('.dot');
+      dots.forEach((el, idx) => {
+        el.className = 'dot' + (idx===currentIndex ? ' active' : '');
+      });
     }
     function nextStory(){ if (currentIndex < storyChunks.length - 1){ currentIndex++; renderStory(); } }
-    function prevStory(){ if (currentIndex > 0){ currentIndex--; renderStory(); } }
+    function prevStory(){ if (currentIndex > 0){ currentIndex--; renderStory(); } else { /* at first, do nothing */ } }
 
     tapRight.addEventListener('click', nextStory);
     tapLeft.addEventListener('click', prevStory);
     closeStories.addEventListener('click', hideStories);
 
-    // close on overlay click outside card
+    // close on overlay click outside main area - not applicable because full-screen; keep for safety
     storiesOverlay.addEventListener('click', (e) => {
       if (e.target === storiesOverlay) hideStories();
     });
@@ -403,10 +439,24 @@
       }
     });
 
-    // accessibility: if user types something while not editing, move into editing
-    document.addEventListener('input', (e) => {
-      // no-op; kept for potential extension
-    });
+    // touch: swipe support (basic)
+    (function addSwipe(el){
+      let startX = 0, startY = 0, distX = 0, distY = 0, startTime=0;
+      const threshold = 50;
+      el.addEventListener('touchstart', function(e){
+        const t = e.changedTouches[0];
+        startX = t.pageX; startY = t.pageY; startTime = Date.now();
+      }, {passive:true});
+      el.addEventListener('touchend', function(e){
+        const t = e.changedTouches[0];
+        distX = t.pageX - startX; distY = t.pageY - startY;
+        const elapsed = Date.now() - startTime;
+        if (Math.abs(distX) >= threshold && Math.abs(distY) < 100){
+          if (distX < 0) nextStory();
+          else prevStory();
+        }
+      }, {passive:true});
+    })(storiesOverlay);
 
     // prevent double-tap zoom on iOS
     let lastTouch = 0;
