@@ -1,0 +1,15 @@
+{
+  "name": "groq-netlify-example",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "netlify dev",
+    "build": "echo \"No build step; está todo estático\""
+  },
+  "dependencies": {
+    "openai": "^4.7.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^12.0.0"
+  }
+}
